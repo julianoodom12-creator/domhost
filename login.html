@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar | DomHost</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff}
+.mono{font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(139,92,246,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.05) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 60% 50% at 50% 50%,#000,transparent);-webkit-mask-image:radial-gradient(ellipse 60% 50% at 50% 50%,#000,transparent)"></div>
+  
+  <div class="relative w-full max-w-md">
+    <div class="text-center mb-10">
+      <a href="index.html" class="inline-flex items-center gap-2 mb-6">
+        <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center">
+          <span class="text-white font-black">▲</span>
+        </div>
+      </a>
+      <h1 class="text-3xl font-black tracking-tight">Entrar no <span class="text-violet-400">DomHost</span></h1>
+      <p class="text-sm text-zinc-500 mt-2">Conecte com seu token GitHub para continuar</p>
+    </div>
+    
+    <div class="bg-zinc-950 border border-white/10 rounded-2xl p-8">
+      <label class="text-xs text-violet-400 font-bold uppercase tracking-widest">Token do GitHub</label>
+      <input id="tokenInput" type="password" placeholder="ghp_..." class="mono w-full mt-2 bg-black border border-zinc-700 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-violet-500">
+      <p class="text-xs text-zinc-500 mt-3 leading-relaxed">
+        Não tem token? Acesse <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="text-violet-400 hover:underline">github.com/settings/tokens</a> → Generate new token (classic) → marque <span class="mono bg-zinc-800 px-1 rounded">repo</span>
+      </p>
+      
+      <button onclick="login()" id="loginBtn" class="w-full mt-6 bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-xl font-bold transition">
+        Entrar →
+      </button>
+      
+      <p id="errorMsg" class="text-xs text-red-400 mt-3 hidden"></p>
+    </div>
+    
+    <p class="text-center text-xs text-zinc-600 mt-6">Seu token fica salvo apenas no seu navegador.<br>Nunca enviamos para nossos servidores.</p>
+  </div>
+</div>
+
+<script>
+async function login() {
+  const t = document.getElementById('tokenInput').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('errorMsg');
+  
+  if (!t) { err.textContent = 'Cole o token primeiro'; err.classList.remove('hidden'); return; }
+  
+  btn.textContent = 'Verificando...';
+  btn.disabled = true;
+  err.classList.add('hidden');
+  
+  try {
+    const r = await fetch('https://api.github.com/user', { headers: { 'Authorization': 'token ' + t } });
+    if (r.ok) {
+      const user = await r.json();
+      localStorage.setItem('domhost_gh_token', t);
+      localStorage.setItem('domhost_gh_user', user.login);
+      // Guardar backup do token no cookie (1 ano) - sobrevive a limpeza de localStorage
+      document.cookie = 'domhost_token=' + encodeURIComponent(t) + ';max-age=31536000;path=/;secure;samesite=lax';
+      location.href = 'dashboard.html';
+    } else {
+      // Token salvo invalido? limpa pra nao ficar preso
+      localStorage.removeItem('domhost_gh_token');
+      document.cookie = 'domhost_token=;max-age=0;path=/';
+      throw new Error();
+    }
+  } catch {
+    err.textContent = 'Token inválido. Verifique e tente novamente.';
+    err.classList.remove('hidden');
+    btn.textContent = 'Entrar →';
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
