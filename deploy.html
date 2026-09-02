@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fazer Deploy | DomHost</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden;max-width:100vw}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff}
+.mono{font-family:'JetBrains Mono',monospace}
+.drop-zone{transition:all .3s}
+.drop-zone.dragover{border-color:#8b5cf6!important;background:rgba(139,92,246,.08)!;transform:scale(1.01)}
+@keyframes progress-stripes{to{background-position:40px 0}}
+.progress-fill{background-image:linear-gradient(45deg,rgba(0,0,0,.15) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.15) 50%,rgba(0,0,0,.15) 75%,transparent 75%);background-size:40px 40px;animation:progress-stripes 1s linear infinite}
+.log-line{opacity:0;animation:log-in .3s forwards}
+@keyframes log-in{to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{animation:spin 1s linear infinite}
+</style>
+</head>
+<body>
+
+<nav class="fixed top-0 w-full bg-black/80 backdrop-blur-xl border-b border-white/5 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center">
+        <span class="text-white font-black text-sm">▲</span>
+      </div>
+      <span class="text-lg font-black tracking-tight">Dom<span class="text-violet-400">Host</span></span>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="dashboard.html" class="text-sm text-zinc-400 hover:text-white transition">Dashboard</a>
+      <span class="mono text-xs text-zinc-600 hidden sm:inline" id="ghStatus">github: não conectado</span>
+    </div>
+  </div>
+</nav>
+
+<section class="pt-28 pb-20 px-4 sm:px-6 max-w-3xl mx-auto">
+  <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">Deploy de <span class="text-violet-400">novo projeto</span></h1>
+  <p class="text-zinc-400 mb-10">Solte a pasta do seu site abaixo. Nós fazemos o resto.</p>
+
+  <!-- PASSO 0: CONECTAR GITHUB (uma vez só) -->
+  <div id="connectBox" class="bg-gradient-to-br from-violet-600/10 to-indigo-600/10 border border-violet-500/20 rounded-2xl p-5 sm:p-8 mb-6">
+    <div class="flex items-start gap-4 flex-col sm:flex-row">
+      <div class="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center text-2xl shrink-0">🔑</div>
+      <div class="flex-1">
+        <h3 class="font-bold text-lg mb-1">Conecte seu GitHub <span class="text-xs font-normal text-violet-400">(só na primeira vez)</span></h3>
+        <p class="text-sm text-zinc-400 mb-4">O DomHost publica seus sites através do GitHub Pages — que é grátis e ilimitado. Você cria um token uma vez e depois é só arrastar pasta e site no ar.</p>
+        <ol class="text-xs text-zinc-500 space-y-1 mb-4">
+          <li>1. Acesse <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="text-violet-400 hover:underline font-semibold">github.com/settings/tokens</a></li>
+          <li>2. Generate new token → <b>Generate new token (classic)</b></li>
+          <li>3. Marque <span class="mono bg-zinc-800 px-1.5 rounded">repo</span> e <span class="mono bg-zinc-800 px-1.5 rounded">workflow</span></li>
+          <li>4. Cole o token abaixo</li>
+        </ol>
+        <div class="flex gap-2 flex-col sm:flex-row">
+          <input id="ghToken" type="password" placeholder="ghp_..." class="mono flex-1 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-500 min-w-0">
+          <button onclick="connectGitHub()" class="bg-violet-600 hover:bg-violet-700 px-6 rounded-xl font-bold text-sm transition active:scale-95">Conectar</button>
+        </div>
+        <p id="connectMsg" class="text-xs mt-2 hidden"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM DEPLOY -->
+  <div id="deployForm" class="hidden space-y-6">
+    <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8">
+      <label class="text-xs text-violet-400 font-bold uppercase tracking-widest">Nome do projeto</label>
+      <input id="projectName" type="text" placeholder="meu-site" class="mono w-full mt-2 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500 min-w-0" oninput="updateUrlPreview()">
+      <p class="text-xs text-zinc-500 mt-2 break-all">URL final: <span id="urlPreview" class="mono text-violet-300">meu-site.github.io</span></p>
+    </div>
+    
+    <div id="dropZone" class="drop-zone bg-zinc-950 border-2 border-dashed border-zinc-700 rounded-2xl p-8 sm:p-12 text-center cursor-pointer" onclick="document.getElementById('fileInput').click()">
+      <div class="text-4xl sm:text-5xl mb-4">📁</div>
+      <p class="font-bold text-base sm:text-lg mb-1">Arraste a pasta do seu site aqui</p>
+      <p class="text-xs sm:text-sm text-zinc-500">ou clique para selecionar (index.html, CSS, JS...)</p>
+      <input id="fileInput" type="file" multiple accept=".html,.css,.js,.txt,.xml,.json,.svg,.png,.jpg,.jpeg,.webp,.ico,.woff,.woff2" class="hidden">
+    </div>
+    
+    <div id="fileList" class="hidden bg-zinc-950 border border-white/10 rounded-2xl p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-sm font-bold">Arquivos selecionados</p>
+        <button onclick="clearFiles()" class="text-xs text-red-400 hover:text-red-300">Limpar</button>
+      </div>
+      <div id="filesContainer" class="mono text-xs text-zinc-400 space-y-1 max-h-40 overflow-auto break-all"></div>
+      <p id="fileSummary" class="text-xs text-zinc-500 mt-3"></p>
+    </div>
+    
+    <button id="deployBtn" onclick="startDeploy()" class="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-violet-600/25 active:scale-98" disabled>
+      🚀 Fazer Deploy
+    </button>
+  </div>
+
+  <!-- TERMINAL -->
+  <div id="deployTerminal" class="hidden mt-8 bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden">
+    <div class="bg-zinc-900 px-4 py-2.5 flex items-center gap-2">
+      <span class="w-3 h-3 bg-red-400 rounded-full"></span>
+      <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+      <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+      <span class="mono text-xs text-zinc-400 ml-2">domhost deploy</span>
+    </div>
+    <div id="terminalContent" class="mono text-[10px] sm:text-xs p-4 sm:p-5 space-y-1.5 min-h-[180px] max-h-[300px] overflow-auto break-all"></div>
+    <div class="h-1.5 bg-zinc-800"><div id="progressBar" class="progress-fill h-full bg-violet-500 transition-all duration-500" style="width:0%"></div></div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="deployResult" class="hidden mt-8 bg-gradient-to-br from-green-600/10 to-emerald-600/10 border border-green-500/30 rounded-2xl p-5 sm:p-8 text-center">
+    <div class="text-4xl sm:text-5xl mb-4">🎉</div>
+    <h3 class="text-xl sm:text-2xl font-black mb-2">Site no ar!</h3>
+    <p class="text-zinc-400 text-sm mb-6">Compartilhe com o mundo:</p>
+    <div class="mono bg-black border border-zinc-700 rounded-xl px-4 py-3 inline-block mb-6 break-all max-w-full">
+      <a id="resultUrl" href="#" target="_blank" class="text-violet-400 hover:text-violet-300"></a>
+    </div>
+    <div class="flex gap-2 sm:gap-3 justify-center flex-wrap">
+      <button id="copyUrl" onclick="copyResult()" class="bg-white/10 hover:bg-white/20 text-white px-4 sm:px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-95">Copiar URL</button>
+      <a id="openUrl" href="#" target="_blank" class="bg-violet-600 hover:bg-violet-700 text-white px-4 sm:px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-95">Abrir site ↗</a>
+      <a href="deploy.html" onclick="location.reload()" class="bg-white/10 hover:bg-white/20 text-white px-4 sm:px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-95">Novo deploy</a>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t border-white/5 py-8 px-6 text-center">
+  <p class="text-xs text-zinc-600">© 2026 DomHost — Deploy de sites em segundos</p>
+</footer>
+
+<script>
+// ==== SISTEMA ANTI-CACHE-QUEBRADO ====
+// 1. Recupera token do cookie se o localStorage foi limpo
+function getCookieToken() {
+  const m = document.cookie.match(/(?:^|;\s*)domhost_token=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+}
+
+// 2. Salvar no cookie junto com localStorage sempre que conectar
+function saveToken(t, user) {
+  localStorage.setItem('domhost_gh_token', t);
+  localStorage.setItem('domhost_gh_user', user);
+  document.cookie = 'domhost_token=' + encodeURIComponent(t) + ';max-age=31536000;path=/;secure;samesite=lax';
+}
+
+let token = localStorage.getItem('domhost_gh_token') || getCookieToken();
+let files = [];
+
+// 3. Se recuperou do cookie, restaura no localStorage
+if (token && !localStorage.getItem('domhost_gh_token')) {
+  localStorage.setItem('domhost_gh_token', token);
+  if (!localStorage.getItem('domhost_gh_user')) {
+    // Busca o usuario e salva
+    fetch('https://api.github.com/user', { headers: { 'Authorization': 'token ' + token } })
+      .then(r => r.ok ? r.json() : null)
+      .then(u => { if (u) localStorage.setItem('domhost_gh_user', u.login); })
+      .catch(() => {});
+  }
+}
+
+// Status GitHub
+function updateGhStatus(ok) {
+  document.getElementById('ghStatus').textContent = ok ? 'github: conectado ✓' : 'github: não conectado';
+  document.getElementById('ghStatus').className = ok ? 'mono text-xs text-green-400 hidden sm:inline' : 'mono text-xs text-zinc-600 hidden sm:inline';
+}
+
+// Ja conectado? - VALIDA o token antes de liberar (nao confia cego)
+if (token) {
+  fetch('https://api.github.com/user', { headers: { 'Authorization': 'token ' + token } })
+    .then(r => {
+      if (r.ok) {
+        return r.json().then(u => {
+          localStorage.setItem('domhost_gh_user', u.login);
+          document.getElementById('connectBox').classList.add('hidden');
+          document.getElementById('deployForm').classList.remove('hidden');
+          updateGhStatus(true);
+        });
+      } else {
+        // Token morto - limpa tudo e pede de novo (sem precisar de F12!)
+        throw new Error('dead');
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem('domhost_gh_token');
+      document.cookie = 'domhost_token=;max-age=0;path=/';
+      token = '';
+      document.getElementById('connectBox').classList.remove('hidden');
+      document.getElementById('ghStatus').textContent = 'github: token expirado - cole um novo';
+      document.getElementById('ghStatus').className = 'mono text-xs text-yellow-400 hidden sm:inline';
+    });
+}
+
+async function connectGitHub() {
+  const t = document.getElementById('ghToken').value.trim();
+  const msg = document.getElementById('connectMsg');
+  if (!t) { msg.textContent = 'Cole o token primeiro'; msg.className = 'text-xs mt-2 text-red-400'; msg.classList.remove('hidden'); return; }
+  
+  msg.textContent = 'Verificando token...'; msg.className = 'text-xs mt-2 text-violet-400'; msg.classList.remove('hidden');
+  
+  try {
+    const r = await fetch('https://api.github.com/user', { headers: { 'Authorization': 'token ' + t } });
+    if (!r.ok) throw new Error();
+    const user = await r.json();
+    saveToken(t, user.login);
+    token = t;
+    updateGhStatus(true);
+    document.getElementById('connectBox').classList.add('hidden');
+    document.getElementById('deployForm').classList.remove('hidden');
+    log('✓ GitHub conectado como ' + user.login, 'green');
+  } catch {
+    msg.textContent = 'Token inválido. Verifique se marcou "repo" e colou certo.';
+    msg.className = 'text-xs mt-2 text-red-400'; msg.classList.remove('hidden');
+  }
+}
+
+function updateUrlPreview() {
+  const name = document.getElementById('projectName').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '') || 'meu-site';
+  document.getElementById('urlPreview').textContent = name + '.github.io (via DomHost)';
+  return name;
+}
+
+// Drag & drop - suporta PASTAS (via webkitGetAsEntry)
+const dz = document.getElementById('dropZone');
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('dragover'); }));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  const items = e.dataTransfer.items;
+  if (items && items.length && items[0].webkitGetAsEntry) {
+    const entries = [];
+    for (const item of items) {
+      const entry = item.webkitGetAsEntry();
+      if (entry) entries.push(entry);
+    }
+    processEntries(entries);
+  } else {
+    handleFiles(e.dataTransfer.files);
+  }
+});
+document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
+
+// Ler pasta arrastada recursivamente
+async function processEntries(entries) {
+  const fileList = [];
+  
+  async function walk(entry, path) {
+    if (entry.isFile) {
+      const file = await new Promise((res, rej) => entry.file(res, rej));
+      // guardar caminho relativo (sem a pasta raiz)
+      const relPath = path ? path + '/' + file.name : file.name;
+      file._path = relPath;
+      fileList.push(file);
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      let allEntries = [];
+      // readEntries so retorna 100 por vez
+      while (true) {
+        const batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+        if (!batch.length) break;
+        allEntries = allEntries.concat(batch);
+      }
+      const dirPath = path ? path + '/' + entry.name : entry.name;
+      for (const child of allEntries) {
+        await walk(child, path ? path + '/' + entry.name : '');
+      }
+    }
+  }
+  
+  for (const entry of entries) {
+    if (entry.isDirectory) {
+      // pasta raiz: filhos entram com path = ''
+      const reader = entry.createReader();
+      let allEntries = [];
+      while (true) {
+        const batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+        if (!batch.length) break;
+        allEntries = allEntries.concat(batch);
+      }
+      for (const child of allEntries) {
+        await walk(child, '');
+      }
+    } else {
+      await walk(entry, '');
+    }
+  }
+  
+  if (fileList.length) handleFiles(fileList);
+}
+
+function handleFiles(fileList) {
+  let added = 0;
+  for (const f of fileList) {
+    if (f.size > 25 * 1024 * 1024) { alert(f.name + ' é muito grande (máx 25MB)'); continue; }
+    const path = f._path || f.webkitRelativePath || f.name;
+    if (files.some(x => (x._path || x.name) === path)) continue;
+    if (!f._path) f._path = (f.webkitRelativePath ? f.webkitRelativePath.split('/').slice(1).join('/') : f.name);
+    files.push(f); added++;
+  }
+  renderFiles();
+  if (added > 0) log('+' + added + ' arquivo(s) adicionado(s)');
+}
+
+function clearFiles() {
+  files = [];
+  renderFiles();
+}
+
+function renderFiles() {
+  const list = document.getElementById('filesContainer');
+  const summary = document.getElementById('fileSummary');
+  const btn = document.getElementById('deployBtn');
+  
+  if (!files.length) {
+    document.getElementById('fileList').classList.add('hidden');
+    btn.disabled = true;
+    return;
+  }
+  
+  document.getElementById('fileList').classList.remove('hidden');
+  btn.disabled = false;
+  
+  list.innerHTML = files.map((f, i) => `
+    <div class="flex items-center justify-between gap-2">
+      <span class="truncate">${f._path || f.name}</span>
+      <span class="shrink-0 text-zinc-600">${(f.size/1024).toFixed(1)}KB <button onclick="removeFile(${i})" class="text-red-400/60 hover:text-red-400 ml-1">×</button></span>
+    </div>
+  `).join('');
+  
+  const totalSize = files.reduce((s, f) => s + f.size, 0);
+  const hasIndex = files.some(f => f.name === 'index.html');
+  summary.innerHTML = `${files.length} arquivo(s) • ${(totalSize/1024).toFixed(1)}KB total ${hasIndex ? '• ✓ index.html encontrado' : '• <span class="text-yellow-400">⚠ sem index.html</span>'}`;
+}
+
+function removeFile(i) {
+  files.splice(i, 1);
+  renderFiles();
+}
+
+// Terminal
+function log(text, color) {
+  const content = document.getElementById('terminalContent');
+  if (!content || document.getElementById('deployTerminal').classList.contains('hidden')) return;
+  const div = document.createElement('div');
+  div.className = 'log-line ' + (color === 'green' ? 'text-green-400' : color === 'red' ? 'text-red-400' : color === 'yellow' ? 'text-yellow-400' : 'text-zinc-400');
+  div.textContent = text;
+  content.appendChild(div);
+  content.scrollTop = content.scrollHeight;
+}
+
+function setProgress(pct) {
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// DEPLOY REAL via GitHub Contents API (funciona em repo vazio e existente)
+async function startDeploy() {
+  if (!files.length) return;
+  if (!files.some(f => f.name === 'index.html')) {
+    if (!confirm('Não encontrei index.html. Continuar mesmo assim?')) return;
+  }
+  
+  const name = updateUrlPreview();
+  const user = localStorage.getItem('domhost_gh_user');
+  
+  // UI
+  document.getElementById('deployForm').classList.add('hidden');
+  document.getElementById('deployTerminal').classList.remove('hidden');
+  document.getElementById('deployTerminal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+  log('▶ DomHost deploy v1.0', 'yellow');
+  log('▶ Projeto: ' + name);
+  setProgress(5);
+  
+  const headers = {
+    'Authorization': 'token ' + token,
+    'Accept': 'application/vnd.github+json'
+  };
+  
+  try {
+    // 1. Usuario
+    log('✓ Autenticado como ' + user, 'green');
+    setProgress(10);
+    
+    // 2. Criar repo
+    log('◌ Criando repositório ' + name + '...');
+    const repoRes = await fetch('https://api.github.com/user/repos', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, description: 'Deployed via DomHost ▲', homepage: 'https://' + user + '.github.io/' + name + '/', private: false, auto_init: false })
+    });
+    
+    if (repoRes.status === 422) {
+      log('ℹ Repositório já existe — atualizando', 'yellow');
+    } else if (!repoRes.ok) {
+      const err = await repoRes.json().catch(() => ({}));
+      throw new Error(err.message || 'Falha ao criar repo (' + repoRes.status + ')');
+    } else {
+      log('✓ Repositório criado', 'green');
+    }
+    setProgress(20);
+    
+    // 3. Subir arquivos via Contents API (PUT por arquivo)
+    const total = files.length;
+    let done = 0;
+    
+    for (const f of files) {
+      const path = (f._path && f._path !== f.name) ? f._path : f.name;
+      const content = await fileToBase64(f);
+      
+      log('◌ Subindo ' + path + '...');
+      
+      // Verificar se arquivo ja existe (pra pegar o sha)
+      const checkRes = await fetch('https://api.github.com/repos/' + user + '/' + name + '/contents/' + encodeURIComponent(path) + '?ref=main', { headers });
+      let sha = null;
+      if (checkRes.ok) {
+        const existing = await checkRes.json();
+        sha = existing.sha;
+      }
+      
+      const body = {
+        message: '▲ Deploy via DomHost: ' + path,
+        content: content,
+        branch: 'main'
+      };
+      if (sha) body.sha = sha;
+      
+      const putRes = await fetch('https://api.github.com/repos/' + user + '/' + name + '/contents/' + encodeURIComponent(path), {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      if (!putRes.ok) {
+        const err = await putRes.json().catch(() => ({}));
+        throw new Error('Falha ao subir ' + path + ': ' + (err.message || putRes.status));
+      }
+      
+      done++;
+      log('  ✓ ' + path + ' (' + (f.size/1024).toFixed(1) + 'KB)', 'green');
+      setProgress(20 + Math.round((done/total) * 65));
+    }
+    
+    setProgress(90);
+    log('✓ Código publicado no GitHub', 'green');
+    
+    // 4. Ativar GitHub Pages
+    log('◌ Ativando hospedagem global (GitHub Pages)...');
+    const pagesRes = await fetch('https://api.github.com/repos/' + user + '/' + name + '/pages', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: { branch: 'main', path: '/' } })
+    });
+    if (pagesRes.status === 409 || pagesRes.ok) {
+      log('✓ Hospedagem ativa', 'green');
+    } else {
+      log('ℹ Pages pode já estar ativo', 'yellow');
+    }
+    setProgress(100);
+    
+    const finalUrl = 'https://' + user + '.github.io/' + name + '/';
+    log('✓ Deploy concluído! 🎉', 'green');
+    log('→ ' + finalUrl, 'yellow');
+    
+    // Resultado
+    setTimeout(() => {
+      document.getElementById('resultUrl').href = finalUrl;
+      document.getElementById('resultUrl').textContent = finalUrl;
+      document.getElementById('openUrl').href = finalUrl;
+      document.getElementById('deployResult').classList.remove('hidden');
+      document.getElementById('deployResult').scrollIntoView({ behavior: 'smooth' });
+    }, 800);
+    
+  } catch (err) {
+    const msg = err.message || '';
+    if (msg.includes('Failed to fetch') || msg.includes('fetch') || msg.includes('NetworkError')) {
+      log('✗ ERRO DE CONEXÃO', 'red');
+      log('↩ O navegador bloqueou a rede. Solução:', 'yellow');
+      log('  1. Abra no CHROME direto (não dentro de WhatsApp/Instagram)', 'yellow');
+      log('  2. Desative VPN / Economia de dados do navegador', 'yellow');
+      log('  3. Teste outro Wi-Fi ou dados móveis', 'yellow');
+    } else {
+      log('✗ ERRO: ' + (msg || 'desconhecido'), 'red');
+      log('↩ Corrija e tente novamente', 'yellow');
+    }
+    setProgress(0);
+    setTimeout(() => {
+      document.getElementById('deployForm').classList.remove('hidden');
+    }, 1500);
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function copyResult() {
+  navigator.clipboard.writeText(document.getElementById('resultUrl').href);
+  document.getElementById('copyUrl').textContent = 'Copiado!';
+  setTimeout(() => document.getElementById('copyUrl').textContent = 'Copiar URL', 2000);
+}
+</script>
+
+</body>
+</html>
