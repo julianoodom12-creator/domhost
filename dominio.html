@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conectar Domínio | DomHost</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff}
+.mono{font-family:'JetBrains Mono',monospace}
+.card-hover{transition:all .3s cubic-bezier(.4,0,.2,1)}
+.card-hover:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.5)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{animation:spin 1s linear infinite}
+</style>
+</head>
+<body>
+
+<section class="pt-28 pb-20 px-4 sm:px-6 max-w-3xl mx-auto">
+  <a href="dashboard.html" class="text-sm text-zinc-400 hover:text-white transition mb-8 inline-block">← Voltar ao Dashboard</a>
+  
+  <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">Conectar <span class="text-violet-400">domínio próprio</span></h1>
+  <p class="text-zinc-400 mb-10">Use seu domínio comprado (.com, .com.br...) no seu site DomHost.</p>
+
+  <!-- STEP 1: escolher projeto -->
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <h3 class="font-bold mb-1 flex items-center gap-2"><span class="w-6 h-6 bg-violet-500/20 text-violet-400 rounded-lg flex items-center justify-center text-xs font-black">1</span> Escolha o projeto</h3>
+    <p class="text-xs text-zinc-500 mb-4">Site que vai receber o domínio</p>
+    <select id="projectSelect" onchange="loadCustomDomain()" class="w-full mt-2 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">
+      <option>Carregando projetos...</option>
+    </select>
+  </div>
+
+  <!-- STEP 2: dominio -->
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <h3 class="font-bold mb-1 flex items-center gap-2"><span class="w-6 h-6 bg-violet-500/20 text-violet-400 rounded-lg flex items-center justify-center text-xs font-black">2</span> Seu domínio</h3>
+    <p class="text-xs text-zinc-500 mb-4">Sem http:// — só o domínio</p>
+    <div class="flex gap-2 flex-col sm:flex-row">
+      <input id="domainInput" type="text" placeholder="meusite.com.br" class="mono flex-1 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">
+      <button onclick="connectDomain()" id="connectBtn" class="bg-violet-600 hover:bg-violet-700 px-6 rounded-xl font-bold text-sm transition whitespace-nowrap">Conectar</button>
+    </div>
+    <p id="domainMsg" class="text-xs mt-3 hidden"></p>
+  </div>
+
+  <!-- STEP 3: DNS -->
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <h3 class="font-bold mb-1 flex items-center gap-2"><span class="w-6 h-6 bg-violet-500/20 text-violet-400 rounded-lg flex items-center justify-center text-xs font-black">3</span> Configure o DNS</h3>
+    <p class="text-xs text-zinc-500 mb-5">No painel da empresa onde você comprou o domínio (Registro.br, GoDaddy, Hostinger...), crie estes registros:</p>
+    
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs mono">
+        <thead>
+          <tr class="text-zinc-500 uppercase text-left">
+            <th class="p-3">Tipo</th>
+            <th class="p-3">Nome</th>
+            <th class="p-3">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t border-white/5"><td class="p-3 text-violet-300">A</td><td class="p-3">@</td><td class="p-3 text-zinc-300">185.199.108.153</td></tr>
+          <tr class="border-t border-white/5"><td class="p-3 text-violet-300">A</td><td class="p-3">@</td><td class="p-3 text-zinc-300">185.199.109.153</td></tr>
+          <tr class="border-t border-white/5"><td class="p-3 text-violet-300">A</td><td class="p-3">@</td><td class="p-3 text-zinc-300">185.199.110.153</td></tr>
+          <tr class="border-t border-white/5"><td class="p-3 text-violet-300">A</td><td class="p-3">@</td><td class="p-3 text-zinc-300">185.199.111.153</td></tr>
+          <tr class="border-t border-white/5"><td class="p-3 text-violet-300">CNAME</td><td class="p-3">www</td><td class="p-3 text-zinc-300">julianoodom12-creator.github.io</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <p class="text-xs text-zinc-500 mt-4">Após criar os DNS, pode levar de 10 minutos a 24h pra propagar. O HTTPS liga sozinho depois.</p>
+  </div>
+
+  <!-- STATUS -->
+  <div id="statusBox" class="hidden bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold">Status do domínio</h3>
+      <button onclick="checkDomain()" class="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg font-semibold transition">Verificar agora</button>
+    </div>
+    <div id="statusContent" class="text-sm text-zinc-400 space-y-2"></div>
+  </div>
+
+  <div class="bg-gradient-to-br from-violet-600/10 to-indigo-600/10 border border-violet-500/20 rounded-2xl p-6 text-sm text-zinc-400">
+    💡 <b class="text-white">Dica:</b> subdomínios (app.seudominio.com, blog.seudominio.com...) são ilimitados e grátis — cada projeto DomHost pode ter o seu.
+  </div>
+</section>
+
+<script>
+const token = localStorage.getItem('domhost_gh_token');
+const user = localStorage.getItem('domhost_gh_user');
+
+if (!token) location.href = 'deploy.html';
+
+const headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+
+// Carregar projetos
+async function loadProjects() {
+  const sel = document.getElementById('projectSelect');
+  try {
+    const res = await fetch('https://api.github.com/users/' + user + '/repos?sort=updated&per_page=30', { headers });
+    const repos = await res.json();
+    const withPages = repos.filter(r => r.has_pages);
+    sel.innerHTML = withPages.length
+      ? withPages.map(r => `<option value="${r.name}">${r.name}</option>`).join('')
+      : '<option value="">Nenhum projeto ainda</option>';
+    if (withPages.length) loadCustomDomain();
+  } catch {
+    sel.innerHTML = '<option value="">Erro ao carregar</option>';
+  }
+}
+
+// Ver dominio ja conectado
+async function loadCustomDomain() {
+  const repo = document.getElementById('projectSelect').value;
+  const statusBox = document.getElementById('statusBox');
+  if (!repo) return;
+  
+  try {
+    const res = await fetch('https://api.github.com/repos/' + user + '/' + repo + '/pages', { headers });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.cname) {
+        document.getElementById('domainInput').value = data.cname;
+        showStatus(data);
+      } else {
+        statusBox.classList.add('hidden');
+      }
+    }
+  } catch {}
+}
+
+function showMsg(text, ok) {
+  const msg = document.getElementById('domainMsg');
+  msg.textContent = text;
+  msg.className = 'text-xs mt-3 ' + (ok ? 'text-green-400' : 'text-red-400');
+}
+
+async function connectDomain() {
+  const repo = document.getElementById('projectSelect').value;
+  let domain = document.getElementById('domainInput').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const btn = document.getElementById('connectBtn');
+  
+  if (!repo) return showMsg('Selecione um projeto', false);
+  if (!domain || !domain.includes('.')) return showMsg('Digite um domínio válido (ex: meusite.com.br)', false);
+  
+  btn.textContent = 'Conectando...';
+  btn.disabled = true;
+  
+  try {
+    // Adicionar cname no Pages
+    const res = await fetch('https://api.github.com/repos/' + user + '/' + repo + '/pages', {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cname: domain, source: { branch: 'main', path: '/' } })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Falha (' + res.status + ')');
+    }
+    
+    // Criar arquivo CNAME no repo (necessario pro Pages manter)
+    const cnameContent = btoa(domain);
+    const checkRes = await fetch('https://api.github.com/repos/' + user + '/' + repo + '/contents/CNAME?ref=main', { headers });
+    const body = { message: '▲ Domínio via DomHost: ' + domain, content: cnameContent, branch: 'main' };
+    if (checkRes.ok) body.sha = (await checkRes.json()).sha;
+    
+    await fetch('https://api.github.com/repos/' + user + '/' + repo + '/contents/CNAME', {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    
+    btn.textContent = 'Conectar';
+    btn.disabled = false;
+    showMsg('✓ Domínio ' + domain + ' conectado ao projeto! Agora configure o DNS (passo 3) e aguarde propagar.', true);
+    
+    // Carregar status
+    const pagesRes = await fetch('https://api.github.com/repos/' + user + '/' + repo + '/pages', { headers });
+    if (pagesRes.ok) showStatus(await pagesRes.json());
+    
+  } catch (e) {
+    btn.textContent = 'Conectar';
+    btn.disabled = false;
+    showMsg('✗ ' + e.message, false);
+  }
+}
+
+function showStatus(data) {
+  const box = document.getElementById('statusBox');
+  const content = document.getElementById('statusContent');
+  box.classList.remove('hidden');
+  
+  const dnsOk = data.status !== 'pending';
+  const httpsOk = data.https_enforced;
+  
+  content.innerHTML = `
+    <div class="flex items-center gap-2 ${dnsOk ? 'text-green-400' : 'text-yellow-400'}">
+      ${dnsOk ? '✓' : '◌'} DNS: ${data.status === 'pending' ? 'aguardando propagação...' : data.status}
+    </div>
+    <div class="flex items-center gap-2 ${httpsOk ? 'text-green-400' : 'text-yellow-400'}">
+      ${httpsOk ? '✓' : '◌'} HTTPS: ${httpsOk ? 'ativo' : 'ativa automaticamente após o DNS propagar'}
+    </div>
+    ${data.html_url ? `<div class="mono text-xs text-violet-300 pt-1">→ <a href="${data.html_url}" target="_blank" class="hover:underline">${data.html_url}</a></div>` : ''}
+  `;
+}
+
+async function checkDomain() {
+  const repo = document.getElementById('projectSelect').value;
+  if (!repo) return;
+  
+  const content = document.getElementById('statusContent');
+  content.innerHTML = '<div class="flex items-center gap-2"><span class="spinner inline-block">◌</span> Verificando...</div>';
+  
+  try {
+    const res = await fetch('https://api.github.com/repos/' + user + '/' + repo + '/pages', { headers });
+    if (res.ok) showStatus(await res.json());
+    else content.innerHTML = '<span class="text-red-400">Nenhum domínio conectado ainda</span>';
+  } catch {
+    content.innerHTML = '<span class="text-red-400">Erro ao verificar</span>';
+  }
+}
+
+loadProjects();
+</script>
+
+</body>
+</html>
