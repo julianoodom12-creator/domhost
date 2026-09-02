@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Manual DomHost v2.0</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;color:#111;background:#fff;max-width:800px;margin:0 auto;padding:40px 30px;font-size:13px;line-height:1.6}
+.page-break{page-break-before:always}
+h1{font-size:34px;font-weight:900;letter-spacing:-1px}
+h2{font-size:22px;font-weight:800;margin:0 0 6px;color:#1a1a1a}
+h3{font-size:15px;font-weight:700;margin:14px 0 6px}
+.cover{text-align:center;padding:80px 20px;background:linear-gradient(160deg,#7c3aed 0%,#4f46e5 60%,#312e81 100%);color:#fff;border-radius:20px;margin-bottom:30px}
+.cover .logo{font-size:64px;margin-bottom:10px}
+.cover h1{color:#fff;font-size:44px}
+.cover h1 span{color:#c4b5fd}
+.cover p{opacity:.85;font-size:16px;margin-top:8px}
+.badge{display:inline-block;background:rgba(255,255,255,.2);padding:5px 14px;border-radius:99px;font-size:12px;font-weight:700;margin-top:16px}
+.section{border:2px solid #ede9fe;background:#fafaff;border-radius:16px;padding:24px;margin-bottom:18px;page-break-inside:avoid}
+.section-num{display:inline-flex;width:34px;height:34px;background:#7c3aed;color:#fff;border-radius:10px;align-items:center;justify-content:center;font-weight:900;font-size:16px;margin-bottom:10px}
+.step{display:flex;gap:12px;margin:10px 0;padding:10px 12px;background:#fff;border:1px solid #e9e4f8;border-radius:10px;page-break-inside:avoid}
+.step-n{flex-shrink:0;width:22px;height:22px;background:#ede9fe;color:#6d28d9;border-radius:99px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;margin-top:2px}
+.tip{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px}
+.warn{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px}
+.info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px}
+.tip b:first-child,.warn b:first-child,.info b:first-child{font-size:14px}
+code{background:#f3f0ff;color:#6d28d9;padding:2px 8px;border-radius:6px;font-family:Consolas,monospace;font-size:12px}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+th{background:#ede9fe;color:#4c1d95;padding:8px;text-align:left;font-weight:700}
+td{border-bottom:1px solid #e9e4f8;padding:8px}
+td:first-child{font-weight:700}
+.footer{margin-top:30px;text-align:center;color:#888;font-size:11px;border-top:1px solid #ddd;padding-top:14px}
+.funcao-icon{font-size:28px;float:right;margin:-6px 0 0 8px}
+a{color:#6d28d9}
+</style>
+</head>
+<body>
+
+<!-- CAPA -->
+<div class="cover">
+  <div class="logo">▲</div>
+  <h1>Dom<span>Host</span></h1>
+  <p>Manual Completo do Usuário</p>
+  <p style="font-size:13px;margin-top:4px">Coloque sites no ar em segundos — 100% grátis</p>
+  <div class="badge">Versão 2.0 • 2026 • Atualizada</div>
+</div>
+
+<!-- SUMARIO -->
+<div class="section">
+  <h2>📚 O que você vai aprender</h2>
+  <table>
+    <tr><td style="width:40px">🔑</td><td>Como conectar sua conta GitHub (só uma vez)</td></tr>
+    <tr><td>🚀</td><td>Como fazer deploy de um site (arrastar pasta → site no ar)</td></tr>
+    <tr><td>🔄</td><td>Como atualizar um site já publicado</td></tr>
+    <tr><td>📊</td><td>Como usar o Dashboard (seus projetos e histórico)</td></tr>
+    <tr><td>🎁</td><td>NOVO! Como pegar um domínio grátis (seunome.is-a.dev)</td></tr>
+    <tr><td>🌐</td><td>Como conectar um domínio próprio comprado</td></tr>
+    <tr><td>🗑️</td><td>Como deletar um projeto</td></tr>
+    <tr><td>📱</td><td>NOVO! Uso no celular (layout responsivo)</td></tr>
+    <tr><td>❓</td><td>Perguntas frequentes e soluções de problemas</td></tr>
+  </table>
+</div>
+
+<!-- FUNCAO 1 -->
+<div class="section page-break">
+  <span class="funcao-icon">🔑</span>
+  <div class="section-num">1</div>
+  <h2>Conectar sua conta GitHub</h2>
+  <p>O DomHost publica seus sites através do GitHub Pages (grátis e ilimitado). Para isso, você conecta um token — <b>só na primeira vez</b>. Depois disso, fica salvo no seu navegador.</p>
+
+  <div class="step"><div class="step-n">1</div><div>Acesse <code>github.com</code> e faça login na sua conta.</div></div>
+  <div class="step"><div class="step-n">2</div><div>Clique na sua <b>foto de perfil</b> (canto superior direito) → <b>Settings</b> (Configurações).</div></div>
+  <div class="step"><div class="step-n">3</div><div>Role até o final do menu esquerdo → <b>Developer settings</b>.</div></div>
+  <div class="step"><div class="step-n">4</div><div>Clique em <b>Personal access tokens</b> → <b>Tokens (classic)</b>.</div></div>
+  <div class="step"><div class="step-n">5</div><div>Clique em <b>Generate new token (classic)</b>. Dê um nome (ex: "DomHost") e em Expiration escolha <b>No expiration</b> (pra nunca expirar).</div></div>
+  <div class="step"><div class="step-n">6</div><div>Em <b>Select scopes</b>, marque: <b>☑ repositório (repo)</b> e <b>☑ delete_repo</b> (excluir_repositório). As sub-opções do repo marcam sozinhas. Nenhuma outra permissão é necessária.</div></div>
+  <div class="step"><div class="step-n">7</div><div>Clique em <b>Generate token</b> e <b>copie o código</b> <code>ghp_...</code> (ele aparece só uma vez!).</div></div>
+  <div class="step"><div class="step-n">8</div><div>Abra o DomHost → <b>Entrar</b> → cole o token → <b>Entrar →</b>. Pronto! 🎉</div></div>
+
+  <div class="tip"><b>💡 Dica:</b> marque APENAS "repo" e "delete_repo". Quanto menos permissão, mais seguro. Ignore as opções de chave pública/SSH — não têm relação com o DomHost.</div>
+  <div class="info"><b>🔒 Segurança:</b> o token fica salvo somente no localStorage do seu navegador, no seu computador. Nunca é enviado para nenhum servidor além do GitHub.</div>
+</div>
+
+<!-- FUNCAO 2 -->
+<div class="section page-break">
+  <span class="funcao-icon">🚀</span>
+  <div class="section-num">2</div>
+  <h2>Fazer Deploy (publicar um site)</h2>
+  <p>O coração do DomHost: arraste a pasta do seu site e ele vai pro ar em segundos, com HTTPS e CDN global.</p>
+
+  <div class="step"><div class="step-n">1</div><div>Abra a página <b>Deploy</b> do DomHost (menu → 🚀 Novo Deploy).</div></div>
+  <div class="step"><div class="step-n">2</div><div>Em <b>Nome do projeto</b>, digite o nome desejado (só letras, números e hífen). Ex: <code>loja-maria</code> → URL final: <code>julianoodom12-creator.github.io/loja-maria</code></div></div>
+  <div class="step"><div class="step-n">3</div><div><b>Arraste a pasta</b> do seu site para a área pontilhada — ou clique nela para selecionar os arquivos. Subpastas como <code>css/</code> e <code>img/</code> são lidas e mantidas automaticamente.</div></div>
+  <div class="step"><div class="step-n">4</div><div>Confira a lista: os arquivos aparecem com tamanho. O ideal é ter um <b>index.html</b> (a página inicial).</div></div>
+  <div class="step"><div class="step-n">5</div><div>Clique em <b>🚀 Fazer Deploy</b> e assista o terminal: cada arquivo aparece subindo em tempo real, com barra de progresso.</div></div>
+  <div class="step"><div class="step-n">6</div><div>Quando aparecer <b>🎉 Site no ar!</b>, clique em <b>Abrir site ↗</b> ou copie a URL.</div></div>
+
+  <div class="tip"><b>💡 Dica:</b> cada arquivo pode ter até 25MB. O deploy cria automaticamente um repositório no seu GitHub e ativa o GitHub Pages — tudo sozinho.</div>
+  <div class="warn"><b>⚠️ Importante:</b> na primeira vez, o GitHub Pages leva de 1 a 2 minutos para construir o site. Se aparecer "404" logo após o deploy, aguarde um pouco e atualize a página (F5).</div>
+</div>
+
+<!-- FUNCAO 3 -->
+<div class="section page-break">
+  <span class="funcao-icon">🔄</span>
+  <div class="section-num">3</div>
+  <h2>Atualizar um site já publicado</h2>
+  <p>Editou os arquivos? Publicar a nova versão é simples — nem precisa deletar nada.</p>
+
+  <div class="step"><div class="step-n">1</div><div>Edite os arquivos do site no seu computador (pasta do projeto).</div></div>
+  <div class="step"><div class="step-n">2</div><div>Abra o DomHost → <b>🚀 Novo Deploy</b>.</div></div>
+  <div class="step"><div class="step-n">3</div><div>Digite o <b>mesmo nome do projeto</b> (ex: <code>meu-site</code>). O DomHost detecta que o repositório já existe.</div></div>
+  <div class="step"><div class="step-n">4</div><div>Arraste a pasta <b>completa atualizada</b> (todos os arquivos, não só o que mudou).</div></div>
+  <div class="step"><div class="step-n">5</div><div>Fazer Deploy → os arquivos antigos são substituídos. Site atualizado em ~1 minuto.</div></div>
+
+  <div class="tip"><b>💡 Dica:</b> sempre arraste a pasta COMPLETA do site, com todos os arquivos — assim nada fica faltando na nova versão.</div>
+</div>
+
+<!-- FUNCAO 4 -->
+<div class="section page-break">
+  <span class="funcao-icon">📊</span>
+  <div class="section-num">4</div>
+  <h2>Dashboard — Meus Projetos</h2>
+  <p>Sua central de controle: todos os sites publicados, histórico de deploys e atalhos.</p>
+
+  <h3>O que você encontra lá:</h3>
+  <table>
+    <tr><th style="width:150px">Elemento</th><th>O que faz</th></tr>
+    <tr><td>🏠 Visão Geral</td><td>Página principal com todos os projetos</td></tr>
+    <tr><td>🚀 Novo Deploy</td><td>Vai direto para a página de publicar site</td></tr>
+    <tr><td>🎁 Domínio Grátis</td><td>Pega um subdomínio grátis seunome.is-a.dev (ver seção 5)</td></tr>
+    <tr><td>🌐 Conectar Domínio</td><td>Configura domínio próprio comprado em um projeto</td></tr>
+    <tr><td>Card do projeto</td><td>Mostra nome, URL, data e botões: <b>Abrir ↗</b>, <b>GitHub</b> e <b>🗑 Deletar</b></td></tr>
+    <tr><td>Histórico de deploys</td><td>Tabela com data e status de cada publicação</td></tr>
+    <tr><td>Plano Hobby</td><td>Seu plano grátis — deploys ilimitados</td></tr>
+  </table>
+
+  <div class="tip"><b>💡 Dica:</b> clicando em <b>Abrir ↗</b> você vê o site ao vivo. O botão <b>GitHub</b> leva ao repositório com todos os arquivos do projeto.</div>
+</div>
+
+<!-- FUNCAO 5 - NOVA -->
+<div class="section page-break">
+  <span class="funcao-icon">🎁</span>
+  <div class="section-num">5</div>
+  <h2>Domínio Grátis (is-a.dev) — NOVO!</h2>
+  <p>Troque o endereço longo do GitHub por um nome profissional, <b>sem configurar DNS e sem pagar nada</b>.</p>
+
+  <h3>Como funciona:</h3>
+  <p>O DomHost automatiza o registro no <b>is-a.dev</b>, um serviço que dá subdomínios grátis para desenvolvedores. Você escolhe o nome, e nós criamos o pedido (Pull Request) no repositório oficial deles automaticamente.</p>
+
+  <div class="step"><div class="step-n">1</div><div>No dashboard, clique em <b>🎁 Domínio Grátis</b>.</div></div>
+  <div class="step"><div class="step-n">2</div><div><b>Escolha o projeto</b> que vai receber o domínio (tem que estar publicado).</div></div>
+  <div class="step"><div class="step-n">3</div><div>Digite o nome do subdomínio (3-20 caracteres). Ex: <code>domhost</code> → vira <code>domhost.is-a.dev</code></div></div>
+  <div class="step"><div class="step-n">4</div><div>Digite seu <b>email</b> (obrigatório no registro).</div></div>
+  <div class="step"><div class="step-n">5</div><div>Clique em <b>🎁 Criar pedido automático</b>. O DomHost faz sozinho: fork do repositório oficial → cria o arquivo de registro → abre o Pull Request pronto.</div></div>
+  <div class="step"><div class="step-n">6</div><div>Acompanhe o PR pela seção <b>Meus pedidos</b> (botão "Ver PR ↗").</div></div>
+
+  <div class="info"><b>⏱️ Prazo:</b> os mantenedores do is-a.dev aprovam em <b>1 a 7 dias</b>. Aprovado = domínio no ar com HTTPS, sem você mexer em DNS nenhum.</div>
+  <div class="warn"><b>⚠️ Requisito:</b> o site precisa estar <b>no ar com conteúdo real</b>. Sites vazios, em construção ou redirecionamentos são rejeitados.</div>
+  <div class="tip"><b>💡 Exemplos de nomes:</b> <code>meuportfolio.is-a.dev</code>, <code>lojamaria.is-a.dev</code>, <code>appclima.is-a.dev</code> — profissional e grátis!</div>
+</div>
+
+<!-- FUNCAO 6 -->
+<div class="section page-break">
+  <span class="funcao-icon">🌐</span>
+  <div class="section-num">6</div>
+  <h2>Conectar Domínio Próprio (comprado)</h2>
+  <p>Comprou um domínio (.com, .com.br...)? Use ele no seu site em vez do endereço do GitHub.</p>
+
+  <div class="step"><div class="step-n">1</div><div>No dashboard, clique em <b>🌐 Conectar Domínio</b>.</div></div>
+  <div class="step"><div class="step-n">2</div><div><b>Escolha o projeto</b> que vai receber o domínio (ex: meu-site).</div></div>
+  <div class="step"><div class="step-n">3</div><div>Digite o domínio <b>sem http://</b> — ex: <code>meusite.com.br</code> → clique <b>Conectar</b>.</div></div>
+  <div class="step"><div class="step-n">4</div><div>Abra o painel da <b>empresa onde comprou o domínio</b> (Registro.br, GoDaddy, Hostinger...) e crie os registros DNS abaixo:</div></div>
+
+  <table>
+    <tr><th>Tipo</th><th>Nome</th><th>Valor</th></tr>
+    <tr><td>A</td><td>@</td><td>185.199.108.153</td></tr>
+    <tr><td>A</td><td>@</td><td>185.199.109.153</td></tr>
+    <tr><td>A</td><td>@</td><td>185.199.110.153</td></tr>
+    <tr><td>A</td><td>@</td><td>185.199.111.153</td></tr>
+    <tr><td>CNAME</td><td>www</td><td>julianoodom12-creator.github.io</td></tr>
+  </table>
+
+  <div class="step"><div class="step-n">5</div><div>Volte no DomHost e clique em <b>Verificar agora</b> — o status mostra se o DNS já propagou e se o HTTPS ativou.</div></div>
+
+  <div class="warn"><b>⏱️ Atenção:</b> a propagação do DNS leva de <b>10 minutos a 24 horas</b>. O HTTPS liga sozinho depois que o DNS propaga.</div>
+  <div class="tip"><b>💡 Subdomínios grátis:</b> quantos quiser — <code>app.seudominio.com</code>, <code>blog.seudominio.com</code> — cada um apontando para um projeto diferente (via CNAME para julianoodom12-creator.github.io).</div>
+</div>
+
+<!-- FUNCAO 7 -->
+<div class="section page-break">
+  <span class="funcao-icon">🗑️</span>
+  <div class="section-num">7</div>
+  <h2>Deletar um Projeto</h2>
+  <p>Remove o site, o repositório GitHub e todos os arquivos — <b>permanentemente</b>.</p>
+
+  <div class="step"><div class="step-n">1</div><div>No dashboard, localize o card do projeto.</div></div>
+  <div class="step"><div class="step-n">2</div><div>Clique no botão <b>🗑</b> (vermelho, ao lado de GitHub).</div></div>
+  <div class="step"><div class="step-n">3</div><div>Leia o aviso e confirme clicando em <b>OK</b>.</div></div>
+  <div class="step"><div class="step-n">4</div><div>Digite o <b>nome exato do projeto</b> para confirmar (proteção contra clique acidental).</div></div>
+  <div class="step"><div class="step-n">5</div><div>O card desvanece e o projeto é apagado. A lista atualiza sozinha.</div></div>
+
+  <div class="warn"><b>⚠️ Cuidado:</b> esta ação é <b>irreversível</b>! O site sai do ar e todos os arquivos são perdidos. Para guardar uma cópia, baixe antes pelo botão GitHub → Code → Download ZIP.</div>
+  <div class="warn"><b>🔑 Permissão:</b> para deletar, o token GitHub precisa da permissão <b>delete_repo</b> (veja seção 1).</div>
+</div>
+
+<!-- FUNCAO 8 - NOVA -->
+<div class="section page-break">
+  <span class="funcao-icon">📱</span>
+  <div class="section-num">8</div>
+  <h2>Uso no Celular — NOVO!</h2>
+  <p>O DomHost é totalmente responsivo: funciona perfeitamente no celular, sem folgas laterais.</p>
+
+  <h3>O que mudou no mobile:</h3>
+  <table>
+    <tr><th style="width:150px">Onde</th><th>No celular</th></tr>
+    <tr><td>☰ Menu</td><td>A barra lateral vira botão de menu que desliza na tela</td></tr>
+    <tr><td>Cards de projeto</td><td>Uma coluna só, com textos ajustados</td></tr>
+    <tr><td>Tabelas</td><td>Scroll horizontal suave</td></tr>
+    <tr><td>Botões</td><td>Toque macio com animação de aperto</td></tr>
+    <tr><td>Formulários</td><td>Campos empilhados e teclado apropriado</td></tr>
+  </table>
+
+  <div class="tip"><b>💡 Dica:</b> dá pra fazer deploy direto do celular! Abra o DomHost, faça login com o token, e selecione arquivos pelo celular (funciona com arquivos baixados no aparelho).</div>
+</div>
+
+<!-- FAQ -->
+<div class="section page-break">
+  <div class="section-num">?</div>
+  <h2>Perguntas Frequentes</h2>
+
+  <h3>❓ É realmente grátis?</h3>
+  <p>Sim! Tudo roda em GitHub Pages (hospedagem grátis para sempre) + domínios grátis do is-a.dev. Zero custo, zero servidor.</p>
+
+  <h3>❓ Erro 404 depois do deploy</h3>
+  <p>Normal na primeira vez. O GitHub Pages leva 1-2 minutos para construir. Aguarde e atualize com F5.</p>
+
+  <h3>❓ "Bad credentials" ao entrar</h3>
+  <p>Seu token expirou ou foi revogado. Crie um novo (seção 1) e cole novamente na página Entrar.</p>
+
+  <h3>❓ O botão deletar não funciona</h3>
+  <p>O token precisa da permissão <b>delete_repo</b>. Tokens antigos não podem ser editados — gere um novo com as duas permissões (repo + delete_repo).</p>
+
+  <h3>❓ Não aparece a caixa de colar o token</h3>
+  <p>Significa que você já está conectado nesse navegador! Para ver a caixa: F12 → Console → <code>localStorage.removeItem('domhost_gh_token')</code> → F5. Ou use uma janela anônima (Ctrl+Shift+N).</p>
+
+  <h3>❓ Preciso saber programar?</h3>
+  <p>Não! Se você tem uma pasta com um site (arquivos HTML), basta arrastar. O DomHost cuida de todo o resto.</p>
+
+  <h3>❓ Consigo usar em vários computadores?</h3>
+  <p>Sim! O DomHost é um site — acesse de qualquer lugar. Basta colar o token GitHub em cada navegador novo.</p>
+
+  <h3>❓ Meu domínio is-a.dev foi rejeitado</h3>
+  <p>Verifique se o site está no ar com conteúdo real (não vazio). Rejeitou mesmo assim? Escolha outro nome ou verifique no PR o motivo exato comentado pelos mantenedores.</p>
+
+  <h3>📱 ERRO: "Failed to fetch" (conexão bloqueada)</h3>
+  <p>O navegador bloqueou a rede — o site está certo, o problema é o ambiente. Siga <b>nesta ordem</b>:</p>
+  <p>1️⃣ <b>Abra no Chrome direto</b> — nunca dentro do WhatsApp/Instagram (o navegador interno de apps bloqueia a autenticação). Copie o link, abra o Chrome e cole.</p>
+  <p>2️⃣ <b>Desative VPN</b> e <b>Economia de dados</b> do navegador (⋮ → Configurações → Economia de dados → desativar). Não use Opera Mini.</p>
+  <p>3️⃣ <b>Troque a rede</b> — passe do Wi-Fi pro 4G (ou vice-versa).</p>
+  <p>4️⃣ <b>Teste de 30s:</b> abra <code>api.github.com/zen</code> no celular. Aparece frase = rede OK. Não carrega = problema na rede/VPN.</p>
+
+  <h3>🗑️ O site não lembra o token / pede login toda hora</h3>
+  <p><b>Você NÃO precisa mais limpar cache!</b> O DomHost agora salva o token em dois lugares (localStorage + cookie de 1 ano) e se auto-recupera. Mas se ainda assim aparecer problema:</p>
+  <p>1️⃣ Abra <code>login.html</code> direto (ex: <code>.../domhost/login.html</code>) e cole o token de novo — isso resolve na maioria dos casos <b>sem excluir histórico</b>.</p>
+  <p>2️⃣ Só se não resolver: Chrome do celular → ⋮ → Histórico → Limpar dados → marque <b>apenas "Cookies e dados de sites"</b> (não precisa apagar tudo).</p>
+  <p>3️⃣ Volte no login.html, cole o token, entre. Pronto!</p>
+
+  <h3>🔗 Erro 404 no site novo depois do deploy</h3>
+  <p><b>Não entre em pânico — seu site está hospedado!</b> O 404 é só o atraso da primeira construção do GitHub Pages (1-2 min). O que fazer:</p>
+  <p>1️⃣ <b>Copie o link do site</b> que aparece na tela de sucesso do deploy.</p>
+  <p>2️⃣ <b>Abra em OUTRA página/aba</b> e cole o link — espere 1-2 minutos e atualize (F5). O site estará funcionando, hospedado <b>gratuitamente</b> pelo DomHost.</p>
+  <p>3️⃣ Se após 10 minutos ainda der 404: confira no <b>GitHub</b> (botão "GitHub" no dashboard) se os arquivos subiram na branch <code>main</code> e se o Pages está ativo em Settings → Pages.</p>
+  <p>💡 Dica: na tela de sucesso, o botão <b>"Abrir site ↗"</b> já faz isso — copie a URL e compartilhe quando estiver no ar.</p>
+</div>
+
+<!-- RESUMO -->
+<div class="section">
+  <div class="section-num">✓</div>
+  <h2>Resumo Rápido</h2>
+  <table>
+    <tr><th>Para...</th><th>Faça isso</th></tr>
+    <tr><td>🔑 Conectar conta</td><td>GitHub → Settings → Developer settings → Tokens (classic) → marcar repo + delete_repo → colar no DomHost</td></tr>
+    <tr><td>🚀 Publicar site</td><td>Deploy → nome do projeto → arrastar pasta → Fazer Deploy</td></tr>
+    <tr><td>🔄 Atualizar site</td><td>Novo deploy com o mesmo nome do projeto</td></tr>
+    <tr><td>🎁 Domínio grátis</td><td>Domínio Grátis → nome + email → pedido automático → aguardar aprovação (1-7 dias)</td></tr>
+    <tr><td>🌐 Domínio próprio</td><td>Conectar Domínio → escolher projeto → DNS conforme tabela</td></tr>
+    <tr><td>🗑️ Apagar projeto</td><td>Botão 🗑 no card → confirmar 2x → digitar nome</td></tr>
+    <tr><td>📱 No celular</td><td>Abra o link do DomHost — layout se ajusta sozinho</td></tr>
+  </table>
+</div>
+
+<div class="footer">
+  <b>▲ DomHost</b> — Manual do Usuário v2.0 • 2026<br>
+  Deploy de sites em segundos, 100% grátis • Suporte: WhatsApp (46) 99903-4918
+</div>
+
+</body>
+</html>
