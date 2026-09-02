@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Domínio Grátis | DomHost</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden;max-width:100vw}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff}
+.mono{font-family:'JetBrains Mono',monospace}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse-dot{animation:pulse-dot 2s infinite}
+</style>
+</head>
+<body>
+
+<section class="pt-28 pb-20 px-4 sm:px-6 max-w-3xl mx-auto">
+  <a href="dashboard.html" class="text-sm text-zinc-400 hover:text-white transition mb-8 inline-block">← Voltar ao Dashboard</a>
+  
+  <div class="flex items-start gap-3 mb-2">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Domínio <span class="text-violet-400">grátis</span> 🎁</h1>
+  </div>
+  <p class="text-zinc-400 mb-8 text-sm sm:text-base">Pegue um subdomínio profissional sem configurar DNS. Nós criamos o pedido automaticamente — quando aprovado, aponta pro seu site.</p>
+
+  <!-- INFO -->
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <h3 class="font-bold mb-3">Como funciona</h3>
+    <div class="space-y-3 text-sm text-zinc-400">
+      <div class="flex gap-3"><span class="text-lg shrink-0">1️⃣</span><span>Escolha o nome: <code class="mono bg-zinc-800 px-1.5 rounded text-violet-300">seunome</code> → vira <code class="mono bg-zinc-800 px-1.5 rounded text-violet-300">seunome.is-a.dev</code></span></div>
+      <div class="flex gap-3"><span class="text-lg shrink-0">2️⃣</span><span>O DomHost cria o pedido (Pull Request) no repositório oficial do <a href="https://is-a.dev" target="_blank" class="text-violet-400 hover:underline">is-a.dev</a> automaticamente</span></div>
+      <div class="flex gap-3"><span class="text-lg shrink-0">3️⃣</span><span>Mantenedores aprovam em <b class="text-white">1 a 7 dias</b> (verificam só se o site é real)</span></div>
+      <div class="flex gap-3"><span class="text-lg shrink-0">4️⃣</span><span>Aprovado = domínio no ar com HTTPS, <b class="text-white">zero DNS pra você configurar</b></span></div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <h3 class="font-bold mb-1">Pegar meu subdomínio</h3>
+    <p class="text-xs text-zinc-500 mb-5">Só letras, números e hífen (3-20 caracteres)</p>
+    
+    <label class="text-xs text-violet-400 font-bold uppercase tracking-widest">Site que vai receber o domínio</label>
+    <select id="projectSelect" class="mono w-full mt-2 mb-5 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">
+      <option>Carregando projetos...</option>
+    </select>
+    
+    <label class="text-xs text-violet-400 font-bold uppercase tracking-widest">Nome do subdomínio</label>
+    <div class="flex items-center gap-2 mt-2">
+      <input id="subInput" type="text" placeholder="meusite" class="mono flex-1 min-w-0 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" oninput="updatePreview()">
+      <span class="mono text-zinc-400 text-sm whitespace-nowrap">.is-a.dev</span>
+    </div>
+    <p class="text-xs text-zinc-500 mt-2 break-all">URL final: <span id="preview" class="mono text-violet-300">meusite.is-a.dev</span></p>
+    
+    <label class="text-xs text-violet-400 font-bold uppercase tracking-widest block mt-5">Seu email (para o registro - obrigatório)</label>
+    <input id="emailInput" type="email" placeholder="voce@email.com" class="mono w-full mt-2 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">
+    
+    <button onclick="createRequest()" id="requestBtn" class="w-full mt-6 bg-violet-600 hover:bg-violet-700 text-white py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-violet-600/25 active:scale-98">
+      🎁 Criar pedido automático
+    </button>
+    
+    <p id="requestMsg" class="text-xs mt-3 hidden"></p>
+  </div>
+
+  <!-- STATUS PEDIDOS -->
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl p-5 sm:p-8 mb-6">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h3 class="font-bold">Meus pedidos</h3>
+      <button onclick="loadRequests()" class="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg font-semibold transition active:scale-95">↻ Atualizar</button>
+    </div>
+    <div id="requestsList" class="space-y-3 text-sm"></div>
+  </div>
+
+  <!-- AVISO -->
+  <div class="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 text-sm text-zinc-400">
+    ⚠️ <b class="text-amber-400">Antes de pedir:</b> o is-a.dev exige que o site já esteja <b class="text-white">no ar com conteúdo real</b>. Sites vazios, em construção ou redirecionamentos são rejeitados. Seu DomHost landing page qualifica tranquilo!
+  </div>
+</section>
+
+<script>
+const token = localStorage.getItem('domhost_gh_token');
+const user = localStorage.getItem('domhost_gh_user');
+
+if (!token) location.href = 'deploy.html';
+
+const headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+
+function updatePreview() {
+  const name = document.getElementById('subInput').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'meusite';
+  document.getElementById('preview').textContent = name + '.is-a.dev';
+}
+
+// Carregar projetos
+async function loadProjects() {
+  const sel = document.getElementById('projectSelect');
+  try {
+    const res = await fetch('https://api.github.com/users/' + user + '/repos?sort=updated&per_page=30', { headers });
+    const repos = await res.json();
+    const withPages = repos.filter(r => r.has_pages);
+    sel.innerHTML = withPages.length
+      ? withPages.map(r => `<option value="${r.name}">${r.name}</option>`).join('')
+      : '<option value="">Nenhum projeto publicado ainda</option>';
+  } catch {
+    sel.innerHTML = '<option value="">Erro ao carregar</option>';
+  }
+}
+
+function showMsg(text, ok) {
+  const msg = document.getElementById('requestMsg');
+  msg.innerHTML = text;
+  msg.className = 'text-xs mt-3 break-all ' + (ok ? 'text-green-400' : 'text-red-400');
+}
+
+// FORK + BRANCH + PR no repo is-a-dev/register
+async function createRequest() {
+  const project = document.getElementById('projectSelect').value;
+  const subname = document.getElementById('subInput').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const email = document.getElementById('emailInput').value.trim();
+  const btn = document.getElementById('requestBtn');
+  
+  if (!project) return showMsg('Selecione um projeto (faça um deploy primeiro)', false);
+  if (subname.length < 3 || subname.length > 20) return showMsg('Nome deve ter 3-20 caracteres', false);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showMsg('Digite um email válido', false);
+  
+  btn.textContent = '◌ Criando fork...';
+  btn.disabled = true;
+  showMsg('Iniciando pedido automático...', true);
+  
+  const targetUrl = 'https://' + user + '.github.io/' + project + '/';
+  const prBranch = 'domhost-' + subname + '-' + Date.now().toString(36);
+  
+  try {
+    // 1. Fork do repo is-a-dev/register
+    const forkRes = await fetch('https://api.github.com/repos/is-a-dev/register/forks', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ default_branch_only: true })
+    });
+    
+    let forkFull = user + '/register';
+    if (forkRes.status === 202) {
+      showMsg('✓ Fork criado. Aguardando processar...', true);
+    } else if (forkRes.ok) {
+      const fd = await forkRes.json();
+      forkFull = fd.full_name;
+    }
+    
+    // Fork assincrono - esperar ficar disponivel
+    btn.textContent = '◌ Preparando fork...';
+    let baseSha = null;
+    for (let i = 0; i < 10; i++) {
+      await new Promise(r => setTimeout(r, 3000));
+      const checkRes = await fetch('https://api.github.com/repos/' + forkFull + '/git/refs/heads/main', { headers });
+      if (checkRes.ok) {
+        const cd = await checkRes.json();
+        baseSha = cd.object.sha;
+        break;
+      }
+      showMsg('◌ Aguardando fork ficar pronto... (' + (i+1) + '/10)', true);
+    }
+    
+    if (!baseSha) throw new Error('Fork demorou demais — tente novamente em 1 minuto');
+    
+    // 2. Pegar commit base p/ criar branch
+    btn.textContent = '◌ Criando branch...';
+    const commitRes = await fetch('https://api.github.com/repos/' + forkFull + '/git/commits/' + baseSha, { headers });
+    const commitData = await commitRes.json();
+    const baseTree = commitData.tree.sha;
+    
+    // 3. Criar blob do arquivo domains/<subname>.json
+    // ESTRUTURA OFICIAL is-a.dev: records (PLURAL). CNAME = string (A/AAAA = array)
+    const dnsContent = btoa(JSON.stringify({
+      owner: { username: user, email: email },
+      records: { CNAME: user + '.github.io' },
+      proxied: false
+    }, null, 4));
+    
+    const blobRes = await fetch('https://api.github.com/repos/' + forkFull + '/git/blobs', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: dnsContent, encoding: 'base64' })
+    });
+    if (!blobRes.ok) throw new Error('Falha ao criar arquivo do domínio');
+    const blob = await blobRes.json();
+    
+    // 4. Tree com o novo arquivo
+    btn.textContent = '◌ Escrevendo registro...';
+    const treeRes = await fetch('https://api.github.com/repos/' + forkFull + '/git/trees', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base_tree: baseTree, tree: [{ path: 'domains/' + subname + '.json', mode: '100644', type: 'blob', sha: blob.sha }] })
+    });
+    const tree = await treeRes.json();
+    
+    // 5. Commit
+    const newCommitRes = await fetch('https://api.github.com/repos/' + forkFull + '/git/commits', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Register ' + subname + '.is-a.dev via DomHost', tree: tree.sha, parents: [baseSha] })
+    });
+    const newCommit = await newCommitRes.json();
+    
+    // 6. Branch
+    const refRes = await fetch('https://api.github.com/repos/' + forkFull + '/git/refs', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: 'refs/heads/' + prBranch, sha: newCommit.sha })
+    });
+    if (!refRes.ok) throw new Error('Falha ao criar branch');
+    
+    // 7. Pull Request - com TEMPLATE OFICIAL do is-a.dev preenchido
+    // (obrigatorio: TOS marcado + preview + purpose, senao o CI falha)
+    btn.textContent = '◌ Abrindo Pull Request...';
+    const prBody = [
+      '<!--',
+      'YOU MUST FILL OUT THIS ENTIRE TEMPLATE FOR YOUR PR TO BE APPROVED!',
+      '',
+      'DO NOT MODIFY OR REMOVE THIS TEMPLATE (INCLUDING REMOVING COMMENTS) OR YOUR PR WILL FAIL VALIDATION!',
+      '-->',
+      '',
+      '# Requirements',
+      '<!-- Your domain MUST pass ALL the requirements below, otherwise it WILL BE DENIED. -->',
+      '<!-- Change each checkbox to [x] (all lowercase, with no spaces between the brackets) to mark it as completed. -->',
+      '<!-- Do not modify anything in this section other than the checkboxes, or your PR will fail validation. -->',
+      '',
+      '- [x] <!-- TOS --> I **agree** to the [Terms of Service](https://is-a.dev/terms). <!-- Your request MUST follow the TOS to be approved. -->',
+      '- [x] <!-- DOMAIN_STRUCTURE --> My file is following the [domain structure](https://docs.is-a.dev/domain-structure/). <!-- Your file is in the domains directory, the name is valid, it is JSON format, etc. -->',
+      '- [x] <!-- WEBSITE_REACHABLE --> My website is **reachable** and **completed**. <!-- We do not permit simple "Hello, world!" or simply copied template websites with minimal changes. -->',
+      '- [x] <!-- SOFTWARE_RELATED --> My website is **software development** related. <!-- We do not accept websites such as gaming, courses, AI agents/chatbots, etc. NOTE: Only your root subdomain needs to meet this requirement. -->',
+      '- [x] <!-- NON_COMMERCIAL --> My website is **not for commercial use**. <!-- Your website\'s purpose should not be to generate any form of revenue or profit. (e.g. a business) -->',
+      '- [x] <!-- CONTACT_INFO --> I have provided sufficient contact information in the `owner` key. <!-- Provide your email in the `email` field or another platform (e.g. Twitter or Discord) for contact. -->',
+      '- [x] <!-- WEBSITE_LINK --> I have provided a link to my website below. <!-- This step is required for your PR to be approved. -->',
+      '',
+      '# Website Preview',
+      '<!-- Provide a LINK (not a screenshot) to your website below between the start/end markers. -->',
+      '<!-- This should be a LINK to the existing domain your website is on, NOT the is-a.dev domain you\'re applying for. (e.g. https://abc.vercel.app, https://abc.github.io) -->',
+      '',
+      '<!-- WEBSITE_PREVIEW_START -->',
+      targetUrl,
+      '<!-- WEBSITE_PREVIEW_END -->',
+      '',
+      '# Website Purpose',
+      '<!-- Please tell us the purpose or motive behind your website in between the start/end markers. For example, it is a portfolio website, etc. -->',
+      '',
+      '<!-- WEBSITE_PURPOSE_START -->',
+      'This website is a developer tool / personal software project related to web development. It is reachable, completed and not for commercial use. Published via GitHub Pages.',
+      '<!-- WEBSITE_PURPOSE_END -->'
+    ].join('\n');
+    
+    const prRes = await fetch('https://api.github.com/repos/is-a-dev/register/pulls', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: 'Register ' + subname + '.is-a.dev',
+        head: user + ':' + prBranch,
+        base: 'main',
+        body: prBody
+      })
+    });
+    
+    if (prRes.status === 422) {
+      const err = await prRes.json();
+      throw new Error(err.errors?.[0]?.message || err.message || 'PR rejeitado - nome pode ja existir');
+    }
+    if (!prRes.ok) throw new Error('Falha ao abrir PR (' + prRes.status + ')');
+    
+    const pr = await prRes.json();
+    
+    // Salvar referencia local
+    const saved = JSON.parse(localStorage.getItem('domhost_free_requests') || '[]');
+    saved.push({ sub: subname, project: project, pr: pr.number, url: pr.html_url, date: new Date().toISOString(), status: 'aberto' });
+    localStorage.setItem('domhost_free_requests', JSON.stringify(saved));
+    
+    btn.textContent = '🎁 Criar pedido automático';
+    btn.disabled = false;
+    showMsg('✓ Pedido criado! PR #' + pr.number + ' aberto. Acompanhe: ' + pr.html_url, true);
+    loadRequests();
+    
+  } catch (e) {
+    btn.textContent = '🎁 Criar pedido automático';
+    btn.disabled = false;
+    showMsg('✗ ' + (e.message || 'Erro desconhecido'), false);
+  }
+}
+
+// Listar pedidos salvos + status dos PRs
+async function loadRequests() {
+  const list = document.getElementById('requestsList');
+  const saved = JSON.parse(localStorage.getItem('domhost_free_requests') || '[]');
+  
+  if (!saved.length) {
+    list.innerHTML = '<p class="text-zinc-500 text-sm">Nenhum pedido ainda. Pegue seu primeiro subdomínio acima! 🎁</p>';
+    return;
+  }
+  
+  list.innerHTML = saved.map((r, i) => `
+    <div class="bg-zinc-900 border border-white/5 rounded-xl p-4 flex items-center justify-between gap-3 flex-wrap">
+      <div class="min-w-0">
+        <p class="mono text-violet-300 text-sm">${r.sub}.is-a.dev</p>
+        <p class="text-xs text-zinc-500">projeto: ${r.project} • PR #${r.pr}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="${r.url}" target="_blank" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg font-semibold transition">Ver PR ↗</a>
+        <button onclick="removeRequest(${i})" class="text-xs text-red-400/60 hover:text-red-400 px-2 py-1.5">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeRequest(i) {
+  const saved = JSON.parse(localStorage.getItem('domhost_free_requests') || '[]');
+  saved.splice(i, 1);
+  localStorage.setItem('domhost_free_requests', JSON.stringify(saved));
+  loadRequests();
+}
+
+loadProjects();
+loadRequests();
+</script>
+
+</body>
+</html>
