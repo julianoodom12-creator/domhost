@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard | DomHost</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden;max-width:100vw}
+body{font-family:'Inter',sans-serif;background:#000;color:#fff}
+.mono{font-family:'JetBrains Mono',monospace}
+.card-hover{transition:all .3s cubic-bezier(.4,0,.2,1)}
+.card-hover:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.5)}
+.card-hover:active{transform:scale(.98)}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse-dot{animation:pulse-dot 2s infinite}
+/* Sidebar mobile */
+#sidebar{transition:transform .3s ease}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%);z-index:60}
+  #sidebar.open{transform:translateX(0)}
+  #overlay.show{display:block!important}
+}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Overlay mobile -->
+<div id="overlay" class="hidden fixed inset-0 bg-black/60 z-50 md:hidden" style="display:none" onclick="toggleSidebar()"></div>
+
+<div class="flex min-h-screen max-w-full">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="w-60 sm:w-60 bg-[#0a0a0a] border-r border-white/5 flex flex-col fixed h-full shrink-0">
+    <div class="p-5 border-b border-white/5 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center">
+          <span class="text-white font-black text-xs">▲</span>
+        </div>
+        <span class="font-black">Dom<span class="text-violet-400">Host</span></span>
+      </a>
+      <button onclick="toggleSidebar()" class="md:hidden p-2 text-zinc-400 hover:text-white text-lg">✕</button>
+    </div>
+    
+    <nav class="flex-1 p-3 space-y-1 text-sm overflow-y-auto">
+      <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/30 text-violet-300 font-semibold">
+        <span>🏠</span> Visão Geral
+      </a>
+      <a href="deploy.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:bg-white/5 hover:text-white transition">
+        <span>🚀</span> Novo Deploy
+      </a>
+      <a href="dominio.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:bg-white/5 hover:text-white transition">
+        <span>🌐</span> Conectar Domínio
+      </a>
+      <a href="dominio-gratis.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:bg-white/5 hover:text-white transition">
+        <span>🎁</span> Domínio Grátis
+      </a>
+      <div id="sidebarProjects" class="pt-3 mt-3 border-t border-white/5"></div>
+    </nav>
+    
+    <div class="p-3 border-t border-white/5">
+      <div class="bg-zinc-900 border border-white/10 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold">DomHost v1.0</span>
+          <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Open Source</span>
+        </div>
+        <p class="text-[10px] text-zinc-500 mb-2">Projeto pessoal — 100% grátis</p>
+        <a href="https://github.com/julianoodom12-creator/domhost" target="_blank" class="block text-center text-[10px] bg-white/10 hover:bg-white/20 py-1.5 rounded-lg font-bold transition">★ Ver no GitHub</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 ml-60 p-4 sm:p-6 md:p-8 w-full min-w-0 max-w-full">
+    <!-- Botao menu mobile -->
+    <button onclick="toggleSidebar()" class="md:hidden mb-4 flex items-center gap-2 bg-zinc-900 border border-white/10 px-4 py-2.5 rounded-xl font-bold text-sm active:scale-95 transition">
+      ☰ Menu
+    </button>
+    
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+      <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-black">Meus <span class="text-violet-400">projetos</span></h1>
+        <p class="text-zinc-500 text-xs sm:text-sm mt-1" id="welcomeMsg">Carregando...</p>
+      </div>
+      <a href="deploy.html" class="bg-violet-600 hover:bg-violet-700 text-white px-4 sm:px-6 py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-violet-600/25 active:scale-95">
+        🚀 Novo Deploy
+      </a>
+    </div>
+
+    <!-- SEM PROJETOS -->
+    <div id="emptyState" class="hidden bg-zinc-950 border border-white/10 rounded-2xl p-8 sm:p-16 text-center">
+      <div class="text-5xl sm:text-6xl mb-6">📦</div>
+      <h3 class="text-lg sm:text-xl font-bold mb-2">Nenhum projeto ainda</h3>
+      <p class="text-sm text-zinc-500 mb-8">Seu primeiro deploy está a 10 segundos de distância.</p>
+      <a href="deploy.html" class="inline-block bg-violet-600 hover:bg-violet-700 text-white px-6 sm:px-8 py-3.5 rounded-xl font-bold transition">🚀 Criar primeiro site</a>
+    </div>
+
+    <!-- GRID PROJETOS -->
+    <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mb-12"></div>
+
+    <!-- DEPLOY HISTORY -->
+    <div id="historySection" class="hidden">
+      <h2 class="text-lg sm:text-xl font-bold mb-4">Histórico de deploys</h2>
+      <div class="bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sm:text-sm min-w-[500px]">
+            <thead>
+              <tr class="border-b border-white/5 text-zinc-500 text-[10px] sm:text-xs uppercase">
+                <th class="text-left p-3 sm:p-4 font-semibold">Projeto</th>
+                <th class="text-left p-3 sm:p-4 font-semibold">Status</th>
+                <th class="text-left p-3 sm:p-4 font-semibold">Quando</th>
+                <th class="text-right p-3 sm:p-4 font-semibold">URL</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+const token = localStorage.getItem('domhost_gh_token') || (document.cookie.match(/(?:^|;\s*)domhost_token=([^;]+)/) ? decodeURIComponent(document.cookie.match(/(?:^|;\s*)domhost_token=([^;]+)/)[1]) : '');
+const user = localStorage.getItem('domhost_gh_user') || '';
+
+if (!token) {
+  location.href = 'deploy.html';
+}
+
+// Recupera usuario se vier do cookie
+if (token && !user) {
+  fetch('https://api.github.com/user', { headers: { 'Authorization': 'token ' + token } })
+    .then(r => r.ok ? r.json() : null)
+    .then(u => { if (u) { localStorage.setItem('domhost_gh_user', u.login); document.getElementById('welcomeMsg').textContent = 'GitHub conectado como ' + u.login; } })
+    .catch(() => {});
+}
+
+const headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+
+document.getElementById('welcomeMsg').textContent = 'GitHub conectado como ' + user;
+
+async function loadProjects() {
+  try {
+    const res = await fetch('https://api.github.com/users/' + user + '/repos?sort=updated&per_page=30', { headers });
+    const repos = await res.json();
+    
+    const withDomhost = repos.filter(r => r.has_pages);
+    const grid = document.getElementById('projectsGrid');
+    const historyBody = document.getElementById('historyBody');
+    
+    if (!withDomhost.length) {
+      document.getElementById('emptyState').classList.remove('hidden');
+      return;
+    }
+    
+    let cardsHtml = '';
+    let rowsHtml = '';
+    let sidebarHtml = '<p class="px-3 text-[10px] uppercase tracking-widest text-zinc-600 font-bold mb-2">Projetos</p>';
+    
+    withDomhost.forEach((r, i) => {
+      const url = r.homepage || ('https://' + user + '.github.io/' + (r.name === user + '.github.io' ? '' : r.name) + '/');
+      const initials = ['🔗','💄','🛒','🌐','🎮','📊','📱','⚡','🎯','💼'][i % 10];
+      const bg = ['violet','pink','amber','blue','green','cyan','red','indigo','purple','teal'][i % 10];
+      
+      cardsHtml += `
+        <div class="card-hover bg-zinc-950 border border-white/10 rounded-2xl p-4 sm:p-6 min-w-0" id="card-${r.name}">
+          <div class="flex items-start justify-between mb-4 gap-2">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 bg-${bg}-500/20 rounded-xl flex items-center justify-center text-lg shrink-0">${initials}</div>
+              <div class="min-w-0">
+                <h3 class="font-bold truncate">${r.name}</h3>
+                <p class="text-[11px] text-zinc-500 truncate">${r.description || 'Site estático'}</p>
+              </div>
+            </div>
+            <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded-full flex items-center gap-1 shrink-0">
+              <span class="w-1.5 h-1.5 bg-green-400 rounded-full pulse-dot"></span> Ready
+            </span>
+          </div>
+          <div class="mono text-xs text-violet-300 mb-4 truncate">${url}</div>
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="text-xs text-zinc-500">↻ ${new Date(r.updated_at).toLocaleDateString('pt-BR')}</span>
+            <div class="flex gap-1.5 sm:gap-2">
+              <a href="${url}" target="_blank" class="text-xs bg-white/10 hover:bg-white/20 px-2.5 sm:px-3 py-1.5 rounded-lg font-semibold transition">Abrir ↗</a>
+              <a href="https://github.com/${r.full_name}" target="_blank" class="text-xs bg-white/10 hover:bg-white/20 px-2.5 sm:px-3 py-1.5 rounded-lg font-semibold transition">GitHub</a>
+              <button onclick="deleteProject('${r.name}')" class="text-xs bg-red-500/10 hover:bg-red-500/30 text-red-400 px-2.5 sm:px-3 py-1.5 rounded-lg font-semibold transition active:scale-90" title="Deletar projeto">🗑</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      rowsHtml += `
+        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+          <td class="p-3 sm:p-4 font-semibold">${r.name}</td>
+          <td class="p-3 sm:p-4 text-green-400">✓ Ready</td>
+          <td class="p-3 sm:p-4 text-zinc-500 whitespace-nowrap">${new Date(r.updated_at).toLocaleDateString('pt-BR')} ${new Date(r.updated_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</td>
+          <td class="p-3 sm:p-4 text-right"><a href="${url}" target="_blank" class="mono text-xs text-violet-400 hover:text-violet-300">abrir ↗</a></td>
+        </tr>
+      `;
+      
+      sidebarHtml += `
+        <a href="${url}" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:bg-white/5 hover:text-white transition text-xs">
+          <span>▸</span> <span class="truncate">${r.name}</span>
+        </a>
+      `;
+    });
+    
+    grid.innerHTML = cardsHtml;
+    historyBody.innerHTML = rowsHtml;
+    document.getElementById('sidebarProjects').innerHTML = sidebarHtml;
+    document.getElementById('historySection').classList.remove('hidden');
+    
+  } catch (e) {
+    document.getElementById('emptyState').classList.remove('hidden');
+  }
+}
+
+async function deleteProject(name) {
+  const confirm1 = confirm('⚠️ Deletar o projeto "' + name + '"?\n\nO site, o repositório GitHub e todos os arquivos serão apagados PERMANENTEMENTE.\n\nEssa ação não pode ser desfeita!');
+  if (!confirm1) return;
+  
+  const confirm2 = prompt('Digite o nome do projeto ("' + name + '") para confirmar a exclusão:');
+  if (confirm2 !== name) {
+    if (confirm2 !== null) alert('Nome não confere. Projeto NÃO foi deletado.');
+    return;
+  }
+  
+  const card = document.getElementById('card-' + name);
+  if (card) {
+    card.style.transition = 'all 0.4s';
+    card.style.opacity = '0.3';
+    card.style.border = '1px solid rgba(239,68,68,.5)';
+  }
+  
+  try {
+    try {
+      await fetch('https://api.github.com/repos/' + user + '/' + name + '/pages', {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cname: null, source: { branch: 'main', path: '/' } })
+      });
+    } catch {}
+    
+    const res = await fetch('https://api.github.com/repos/' + user + '/' + name, {
+      method: 'DELETE',
+      headers: headers
+    });
+    
+    if (res.status === 204) {
+      if (card) {
+        card.style.transform = 'scale(0.9)';
+        card.style.opacity = '0';
+      }
+      setTimeout(() => loadProjects(), 500);
+      alert('✓ Projeto "' + name + '" deletado com sucesso!');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'status ' + res.status);
+    }
+    
+  } catch (e) {
+    if (card) {
+      card.style.opacity = '1';
+      card.style.border = '1px solid rgba(239,68,68,.5)';
+    }
+    alert('✗ Erro ao deletar: ' + e.message + '\n\nDica: o token precisa da permissão "delete_repo" para deletar.');
+  }
+}
+
+loadProjects();
+</script>
+
+</body>
+</html>
